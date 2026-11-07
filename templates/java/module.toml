@@ -1,0 +1,34 @@
+# A translator in Java (or Kotlin, or any JVM language). Glossa runs
+# `java -jar module.jar` as a child process on first use and stops it when
+# idle; the user needs a Java 17+ runtime. Build module.jar first:
+#   ./build.sh            (Linux, macOS, Git Bash)
+#   .\build.ps1           (PowerShell)
+#
+# This template talks to an imaginary JSON API at api.example.com. Replace
+# the URL, the request and the parsing in src/ with your service's, and the
+# recorded answers in tests/ with what your service really returns.
+capabilities = ["translate"]
+
+[module]
+id = "example-translator-java"   # change this: lowercase letters, digits, - _ .
+name = "Example Translator (Java)"
+version = "0.1.0"
+api = 1
+runtime = "java"
+entry = "module.jar"
+jvm_args = ["-Xmx64m"]           # a small heap is plenty for JSON in, JSON out
+description = "Translates through the Example API. A Java template to start a module from."
+homepage = "https://github.com/bropines/glossa-module-kit"
+license = "MIT OR Apache-2.0"
+max_input_chars = 5000
+idle_timeout_secs = 120          # stop the JVM after two idle minutes
+
+[permissions]
+network = ["api.example.com"]     # every host the module asks Glossa to call
+
+[[options]]
+key = "api_key"
+type = "secret"
+label = "API key"
+help = "Get one from your Example API account page."
+required = true

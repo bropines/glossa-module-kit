@@ -1,0 +1,62 @@
+# Cases for `glossa-cli module test`: each [[case]] is one call, [case.expect]
+# says what must come back, and [[case.http]] is what the service answers
+# (matched by method and URL prefix), so the cases run offline.
+# Format: https://github.com/bropines/glossa/blob/main/docs/modules/testing.md
+#
+# Keys here are obvious fakes. Never put a real one in this folder.
+options = { api_key = "test-key" }
+
+[[case]]
+name = "translates a greeting"
+op = "translate"
+text = "Hello, world"
+from = "en"
+to = "de"
+expect = { text = "Hallo, Welt" }
+[[case.http]]
+method = "POST"
+url = "https://api.example.com/v1/translate"
+body_file = "responses/hello-de.json"
+
+[[case]]
+name = "reports the detected language"
+op = "translate"
+text = "Bonjour"
+to = "en"
+expect = { text = "Hello", detected = "fr" }
+[[case.http]]
+method = "POST"
+url = "https://api.example.com/v1/translate"
+body = '{"translation": "Hello", "detected_source": "fr"}'
+
+[[case]]
+name = "asks for the key when it is empty"
+op = "translate"
+text = "Hello"
+to = "de"
+options = { api_key = "" }
+expect = { error = "missing_credential", error_contains = "api_key" }
+
+[[case]]
+name = "asks for the key when the service rejects it"
+op = "translate"
+text = "Hello"
+to = "de"
+expect = { error = "missing_credential" }
+[[case.http]]
+method = "POST"
+url = "https://api.example.com/v1/translate"
+status = 403
+body = '{"error": "invalid key"}'
+
+[[case]]
+name = "backs off when rate limited"
+op = "translate"
+text = "Hello"
+to = "de"
+expect = { error = "rate_limited" }
+[[case.http]]
+method = "POST"
+url = "https://api.example.com/v1/translate"
+status = 429
+body = '{"error": "too many requests"}'

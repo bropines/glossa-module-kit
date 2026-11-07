@@ -1,0 +1,17 @@
+# Cases for `glossa-cli module test`. Build the library beside module.toml
+# first (./build.sh). Format:
+# https://github.com/bropines/glossa/blob/main/docs/modules/testing.md
+
+[[case]]
+name = "shouts"
+op = "translate"
+text = "quiet please"
+to = "en"
+expect = { text = "QUIET PLEASE" }
+
+[[case]]
+name = "leaves escapes and other scripts alone"
+op = "translate"
+text = "say \"hi\"\nпривет"
+to = "en"
+expect = { text = "SAY \"HI\"\nпривет" }

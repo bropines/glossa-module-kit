@@ -1,0 +1,34 @@
+# A translator as a native library (Rust). Glossa loads it into its own
+# process: no runtime to install, no process to start, but a crash takes
+# Glossa down, so keep it to code you trust. Build it and copy the library
+# beside this file:
+#   ./build.sh            (cargo build --release, then the copy)
+#
+# This template talks to an imaginary JSON API at api.example.com. Replace
+# the URL, the request and the parsing in src/lib.rs with your service's,
+# and the recorded answers in tests/ with what your service really returns.
+capabilities = ["translate"]
+
+[module]
+id = "example-translator-rust"   # change this: lowercase letters, digits, - _ .
+name = "Example Translator (Rust)"
+version = "0.1.0"
+api = 1
+runtime = "native"
+# The cargo package name: Glossa tries it, then the platform's library names
+# (libexample_translator.so / .dylib, example_translator.dll).
+entry = "example-translator"
+description = "Translates through the Example API. A native Rust template to start a module from."
+homepage = "https://github.com/bropines/glossa-module-kit"
+license = "MIT OR Apache-2.0"
+max_input_chars = 5000
+
+[permissions]
+network = ["api.example.com"]     # every host the module asks Glossa to call
+
+[[options]]
+key = "api_key"
+type = "secret"
+label = "API key"
+help = "Get one from your Example API account page."
+required = true

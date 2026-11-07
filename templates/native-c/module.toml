@@ -1,0 +1,27 @@
+# A translator as a native library written in C: it "translates" by
+# uppercasing, offline. Build shout.c into a library named for your platform
+# (./build.sh, or the commands at the top of shout.c) and keep it beside
+# this file. Glossa loads it into its own process, so a crash takes Glossa
+# down: keep native code to what you trust.
+#
+# A real C module would call a service through the `http` host call (see
+# docs/modules/native-modules.md) and parse JSON with a proper library.
+capabilities = ["translate"]
+
+[module]
+id = "example-translator-c"   # change this: lowercase letters, digits, - _ .
+name = "SHOUT (C template)"
+version = "0.1.0"
+api = 1
+runtime = "native"
+# Glossa tries `shout`, then shout.dll / libshout.dll on Windows,
+# libshout.so / shout.so on Linux, libshout.dylib / shout.dylib on macOS.
+entry = "shout"
+description = "Uppercases text. A native C template to start a module from."
+homepage = "https://github.com/bropines/glossa-module-kit"
+license = "MIT OR Apache-2.0"
+max_input_chars = 5000
+ready_to_use = true           # no key, no setup: switched on when it first appears
+
+[permissions]
+network = []                  # it never touches the network

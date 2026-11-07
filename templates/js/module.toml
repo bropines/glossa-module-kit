@@ -1,0 +1,29 @@
+# A translator in JavaScript. Glossa runs main.js in its built-in engine:
+# nothing to install, no process, no build step.
+#
+# This template talks to an imaginary JSON API at api.example.com. Replace
+# the URL, the request and the parsing in main.js with your service's, and
+# the recorded answers in tests/ with what your service really returns.
+capabilities = ["translate"]
+
+[module]
+id = "example-translator-js"   # change this: lowercase letters, digits, - _ .
+name = "Example Translator (JavaScript)"
+version = "0.1.0"
+api = 1
+runtime = "js"
+entry = "main.js"
+description = "Translates through the Example API. A JavaScript template to start a module from."
+homepage = "https://github.com/bropines/glossa-module-kit"
+license = "MIT OR Apache-2.0"
+max_input_chars = 5000
+
+[permissions]
+network = ["api.example.com"]   # every host main.js calls, and nothing more
+
+[[options]]
+key = "api_key"
+type = "secret"
+label = "API key"
+help = "Get one from your Example API account page."
+required = true

@@ -1,0 +1,33 @@
+# A translator as a plain Node.js program, through Glossa's generic process
+# runtime: Glossa runs the command and speaks the module protocol (JSON
+# lines) over its stdin and stdout. No SDK: main.mjs does it by hand, which
+# is also the recipe for Go, C#, Ruby or any compiled program.
+#
+# This template talks to an imaginary JSON API at api.example.com. Replace
+# the URL, the request and the parsing in main.mjs with your service's, and
+# the recorded answers in tests/ with what your service really returns.
+capabilities = ["translate"]
+
+[module]
+id = "example-translator-node"   # change this: lowercase letters, digits, - _ .
+name = "Example Translator (Node.js)"
+version = "0.1.0"
+api = 1
+runtime = "process"
+command = ["node", "main.mjs"]   # node from PATH; relative paths start in this folder
+env = { NODE_NO_WARNINGS = "1" }
+description = "Translates through the Example API. A process-module template (Node.js 18+) to start from."
+homepage = "https://github.com/bropines/glossa-module-kit"
+license = "MIT OR Apache-2.0"
+max_input_chars = 5000
+idle_timeout_secs = 120          # stop the process after two idle minutes
+
+[permissions]
+network = ["api.example.com"]     # every host main.mjs asks Glossa to call
+
+[[options]]
+key = "api_key"
+type = "secret"
+label = "API key"
+help = "Get one from your Example API account page."
+required = true

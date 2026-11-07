@@ -1,0 +1,31 @@
+# A translator in Python. Glossa starts main.py as a child process on first
+# use and stops it when idle; the user needs Python 3.8 or newer.
+# glossa_module.py (the SDK) is put on the module's PYTHONPATH by Glossa.
+#
+# This template talks to an imaginary JSON API at api.example.com. Replace
+# the URL, the request and the parsing in main.py with your service's, and
+# the recorded answers in tests/ with what your service really returns.
+capabilities = ["translate"]
+
+[module]
+id = "example-translator-py"   # change this: lowercase letters, digits, - _ .
+name = "Example Translator (Python)"
+version = "0.1.0"
+api = 1
+runtime = "python"
+entry = "main.py"
+description = "Translates through the Example API. A Python template to start a module from."
+homepage = "https://github.com/bropines/glossa-module-kit"
+license = "MIT OR Apache-2.0"
+max_input_chars = 5000
+idle_timeout_secs = 120        # stop the interpreter after two idle minutes
+
+[permissions]
+network = ["api.example.com"]   # every host main.py calls, and nothing more
+
+[[options]]
+key = "api_key"
+type = "secret"
+label = "API key"
+help = "Get one from your Example API account page."
+required = true
