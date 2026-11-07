@@ -79,7 +79,7 @@ download_release() {
     else
         tag="v${INPUT_VERSION#v}"
     fi
-    local version="${tag#v}" arch os asset
+    local version="${tag#v}" arch asset
     case "${RUNNER_ARCH:-X64}" in
         X64) arch=x86_64 ;;
         ARM64) arch=arm64 ;;

@@ -59,7 +59,7 @@ runs:
 
     - id: cache
       if: steps.resolve.outputs.build == 'true'
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         path: ${{ steps.resolve.outputs.build-root }}
         key: glossa-cli-${{ runner.os }}-${{ runner.arch }}-${{ steps.resolve.outputs.sha }}

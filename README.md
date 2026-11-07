@@ -113,7 +113,7 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       # Java and native modules: build here first (./build.sh).
       - uses: bropines/glossa-module-kit@main
         with:
