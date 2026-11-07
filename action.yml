@@ -1,0 +1,91 @@
+name: Test a Glossa module
+description: >-
+  Install glossa-cli for the runner's system and run `glossa-cli module check`
+  and `glossa-cli module test` on a Glossa module folder.
+author: bropines
+branding:
+  icon: check-circle
+  color: blue
+
+inputs:
+  path:
+    description: The module folder, or a folder with several modules below it.
+    default: "."
+  glossa-version:
+    description: >-
+      The Glossa release to take glossa-cli from: a version such as
+      0.2.0 (or v0.2.0), or `latest` for the newest published release,
+      pre-releases included.
+    default: latest
+  glossa-ref:
+    description: >-
+      A branch, tag or commit of bropines/glossa to build glossa-cli from with
+      `cargo install` when the release has no `module test` (or cannot be
+      used). Empty: no fallback, fail instead. Builds take several minutes the
+      first time and are cached by commit.
+    default: ""
+  strict:
+    description: Warnings fail the module too (`--strict`).
+    default: "true"
+  require-runtimes:
+    description: >-
+      A module that cannot run here (no Python, Node or JDK, a library or jar
+      not built) fails instead of being skipped (`--require-runtimes`).
+    default: "true"
+  args:
+    description: More arguments for `glossa-cli module test`, such as `--case NAME` or `--timeout 60`.
+    default: ""
+
+outputs:
+  glossa-cli:
+    description: The path of the glossa-cli that ran.
+    value: ${{ steps.install.outputs.cli }}
+  version:
+    description: What `glossa-cli --version` printed.
+    value: ${{ steps.install.outputs.version }}
+
+runs:
+  using: composite
+  steps:
+    # Pick a release, download it and see whether its glossa-cli has the
+    # harness; decide whether a build from glossa-ref is needed.
+    - id: resolve
+      shell: bash
+      env:
+        GH_TOKEN: ${{ github.token }}
+        INPUT_VERSION: ${{ inputs.glossa-version }}
+        INPUT_REF: ${{ inputs.glossa-ref }}
+      run: '"$GITHUB_ACTION_PATH/scripts/install-glossa-cli.sh" resolve'
+
+    - id: cache
+      if: steps.resolve.outputs.build == 'true'
+      uses: actions/cache@v4
+      with:
+        path: ${{ steps.resolve.outputs.build-root }}
+        key: glossa-cli-${{ runner.os }}-${{ runner.arch }}-${{ steps.resolve.outputs.sha }}
+
+    - id: build
+      if: steps.resolve.outputs.build == 'true' && steps.cache.outputs.cache-hit != 'true'
+      shell: bash
+      env:
+        BUILD_ROOT: ${{ steps.resolve.outputs.build-root }}
+        BUILD_SHA: ${{ steps.resolve.outputs.sha }}
+      run: '"$GITHUB_ACTION_PATH/scripts/install-glossa-cli.sh" build'
+
+    - id: install
+      shell: bash
+      env:
+        CANDIDATE: ${{ steps.resolve.outputs.cli }}
+        BUILD: ${{ steps.resolve.outputs.build }}
+        BUILD_ROOT: ${{ steps.resolve.outputs.build-root }}
+        INSTALL_KEY: ${{ steps.resolve.outputs.key }}
+      run: '"$GITHUB_ACTION_PATH/scripts/install-glossa-cli.sh" finish'
+
+    - shell: bash
+      env:
+        GLOSSA_CLI: ${{ steps.install.outputs.cli }}
+        MODULE_PATH: ${{ inputs.path }}
+        STRICT: ${{ inputs.strict }}
+        REQUIRE_RUNTIMES: ${{ inputs.require-runtimes }}
+        EXTRA_ARGS: ${{ inputs.args }}
+      run: '"$GITHUB_ACTION_PATH/scripts/install-glossa-cli.sh" test'
