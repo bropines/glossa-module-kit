@@ -1,0 +1,101 @@
+name: templates
+
+# Runs this repository's action on every template, the way a module's own
+# repository would use it. Until a Glossa release ships `module test`, the
+# action falls back to building glossa-cli from bropines/glossa's main
+# (cached by commit); once one does, it takes the release and the fallback
+# stays unused.
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 4 * * 1" # weekly, to notice when Glossa's main breaks a template
+
+permissions:
+  contents: read
+
+concurrency:
+  group: templates-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  templates:
+    name: templates (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Build the Java template
+        run: templates/java/build.sh
+      - name: Test and build the Rust template
+        run: |
+          cargo test --manifest-path templates/native-rust/Cargo.toml
+          templates/native-rust/build.sh
+      - name: Build the C template
+        run: templates/native-c/build.sh
+
+      # The first use installs glossa-cli; the others reuse it.
+      - name: JavaScript
+        uses: ./
+        with:
+          path: templates/js
+          glossa-ref: main
+      - name: Python
+        uses: ./
+        with:
+          path: templates/python
+          glossa-ref: main
+      - name: Java
+        uses: ./
+        with:
+          path: templates/java
+          glossa-ref: main
+      - name: Process (Node.js)
+        uses: ./
+        with:
+          path: templates/process-node
+          glossa-ref: main
+      - name: Native (Rust)
+        uses: ./
+        with:
+          path: templates/native-rust
+          glossa-ref: main
+      - name: Native (C)
+        uses: ./
+        with:
+          path: templates/native-c
+          glossa-ref: main
+
+  types:
+    name: editor types
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      # The JavaScript template must type-check against types/glossa.d.ts.
+      - run: npx --yes -p typescript@5.6.3 tsc -p templates/js/jsconfig.json
+
+  scripts:
+    name: shell scripts
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: shellcheck scripts/*.sh templates/*/build.sh
